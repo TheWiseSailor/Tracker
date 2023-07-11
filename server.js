@@ -21,7 +21,6 @@
 //import the required modules needed
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
-const cTable = require("console.table");
 //.env file 
 require("dotenv").config();
 // Create a connection to the MySQL database
@@ -29,6 +28,50 @@ const db = mysql.createConnection({
   host: "localhost",
   port: 3001,
   user: "root",
-  password: "Password",
-  database: "",
+  password: process.env.DB_PASSWORD,
+  database: "employeetracker",
 });
+
+function startApp(){
+  inquirer
+ .prompt([
+  {
+    type: 'list',
+    name: 'starting menu',
+    message: 'What would you like to do?',
+      choices: [
+        'View all employees',
+          'Add employee',
+          'Update employee role',
+          'Exit',
+    
+    ],
+  },
+ ]);
+//making a function to add employee(s)
+function addEmployee() {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'first_name',
+        message: "Enter the employee's first name:",
+      },
+      {
+        type: 'input',
+        name: 'last_name',
+        message: "Enter the employee's last name:",
+      },
+      {
+        type: 'input',
+        name: 'role_id',
+        message: "Enter the employee's role ID:",
+      },
+      {
+        type: 'input',
+        name: 'manager_id',
+        message: "Enter the employee's manager ID:",
+      },
+    ])
+};
+}
