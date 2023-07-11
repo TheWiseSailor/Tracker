@@ -18,37 +18,73 @@
 // THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
 
 
-//import the required modules needed
-const mysql = require("mysql2");
-const inquirer = require("inquirer");
-//.env file 
-require("dotenv").config();
-// Create a connection to the MySQL database
-const db = mysql.createConnection({
-  host: "localhost",
-  port: 3001,
-  user: "root",
-  password: process.env.DB_PASSWORD,
-  database: "employeetracker",
+const inquirer = require('inquirer');
+const mysql = require('mysql');
+
+// Create a connection mysql
+const connection = mysql.createConnection({
+  host: 'localhost',
+  port: 3306,
+  user: 'your_username',
+  password: 'your_password',
+  database: 'employee_tracker_db',
 });
 
-function startApp(){
+// connect this to the data base
+connection.connect((err) => {
+  if (err) throw err;
+  console.log('Connected to the database.');
+  startApp();
+});
+
+// Prompt the user to choose what eevr action they want accordingly
+function startApp() {
   inquirer
- .prompt([
-  {
-    type: 'list',
-    name: 'starting menu',
-    message: 'What would you like to do?',
-      choices: [
-        'View all employees',
+    .prompt([
+      {
+        type: 'list',
+        name: 'action',
+        message: 'What would you like to do?',
+        choices: [
+          'View all employees',
           'Add employee',
           'Update employee role',
           'Exit',
-    
-    ],
-  },
- ]);
-//making a function to add employee(s)
+        ],
+      },
+    ])
+    .then((answers) => {
+      switch (answers.action) {
+        case 'View all employees':
+          viewAllEmployees();
+          break;
+        case 'Add employee':
+          addEmployee();
+          break;
+        case 'Update employee role':
+          updateEmployeeRole();
+          break;
+        case 'Exit':
+          connection.end();
+          console.log('Disconnected from the database.');
+          break;
+        default:
+          console.log('Invalid action.');
+          startApp();
+      }
+    });
+}
+
+// this will be a function to view all employees
+function viewAllEmployees() {
+  connection.query('SELECT * FROM employees', (err, results) => {
+    if (err) throw err;
+    console.table(results);
+    startApp();
+  });
+}
+
+// Function to add an employee if needed
 function addEmployee() {
   inquirer
     .prompt([
@@ -83,12 +119,10 @@ function addEmployee() {
           startApp();
         }
       );
-});
-};
+    });
+}
 
-
-
-//function thatbasically updates employee(s) role
+// Function to update an employee's role if needed
 function updateEmployeeRole() {
   connection.query('SELECT * FROM employees', (err, employees) => {
     if (err) throw err;
@@ -122,5 +156,4 @@ function updateEmployeeRole() {
         );
       });
   });
-}
 }
