@@ -73,5 +73,54 @@ function addEmployee() {
         message: "Enter the employee's manager ID:",
       },
     ])
+    .then((answers) => {
+      connection.query(
+        'INSERT INTO employees SET ?',
+        answers,
+        (err, result) => {
+          if (err) throw err;
+          console.log('Employee added successfully.');
+          startApp();
+        }
+      );
+});
 };
+
+
+
+//function thatbasically updates employee(s) role
+function updateEmployeeRole() {
+  connection.query('SELECT * FROM employees', (err, employees) => {
+    if (err) throw err;
+
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'employeeId',
+          message: "Select the employee's ID:",
+          choices: employees.map((employee) => ({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id,
+          })),
+        },
+        {
+          type: 'input',
+          name: 'newRoleId',
+          message: 'Enter the new role ID:',
+        },
+      ])
+      .then((answers) => {
+        connection.query(
+          'UPDATE employees SET role_id = ? WHERE id = ?',
+          [answers.newRoleId, answers.employeeId],
+          (err, result) => {
+            if (err) throw err;
+            console.log('Employee role updated successfully.');
+            startApp();
+          }
+        );
+      });
+  });
+}
 }
